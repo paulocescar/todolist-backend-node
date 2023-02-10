@@ -7,9 +7,9 @@ export class ListController {
   constructor(private readonly listService: ListService) { }
 
   @Post()
-  create(@Body() createListDto: ListDto) {
+  async create(@Body() createListDto: ListDto) {
     try {
-      this.listService.create(createListDto);
+      await this.listService.create(createListDto);
       return {
         statusCode: HttpStatus.OK,
         message: 'Item List created successfully',
@@ -24,27 +24,34 @@ export class ListController {
   }
 
   @Get()
-  findAll() {
-    const allList = this.listService.findAll();
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'User created successfully',
-      allList
+  async findAll() {
+    try {
+      const allList = await this.listService.findAll();
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Get list.',
+        data: allList
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.CONFLICT,
+        message: error.sqlMessage
+      }
     }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.listService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    return await this.listService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateListDto: ListDto) {
-    return this.listService.update(+id, updateListDto);
+  async update(@Param('id') id: string, @Body() updateListDto: ListDto) {
+    return await this.listService.update(+id, updateListDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.listService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.listService.remove(+id);
   }
 }

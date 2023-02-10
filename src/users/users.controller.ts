@@ -7,11 +7,11 @@ const saltOrRounds = 4;
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   async create(@Body() userDto: UserDto) {
-    try{
+    try {
       userDto.password = await bcrypt.hash(userDto.password, saltOrRounds);
       const user = await this.usersService.create(userDto);
       return {
@@ -20,7 +20,7 @@ export class UsersController {
         user
       }
 
-    }catch(error){
+    } catch (error) {
       return {
         statusCode: HttpStatus.CONFLICT,
         message: error.sqlMessage
@@ -30,26 +30,33 @@ export class UsersController {
 
   @Get()
   async findAll() {
-    const allUsers = await this.usersService.findAll();
-    return {
-      statusCode: HttpStatus.OK,
-      message: 'User created successfully',
-      allUsers
+    try {
+      const allUsers = await this.usersService.findAll();
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'List Users successfully',
+        data: allUsers
+      }
+    } catch (error) {
+      return {
+        statusCode: HttpStatus.CONFLICT,
+        message: error.sqlMessage
+      }
     }
   }
 
   @Get(':username')
-  findOne(@Param('username') username: string) {
-    return this.usersService.findOne(username);
+  async findOne(@Param('username') username: string) {
+    return await this.usersService.findOne(username);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() userDto: UserDto) {
-    return this.usersService.update(+id, userDto);
+  async update(@Param('id') id: string, @Body() userDto: UserDto) {
+    return await this.usersService.update(+id, userDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.usersService.remove(+id);
   }
 }
